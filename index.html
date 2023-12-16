@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>consoleDraw - Draw pixel art straight to your JavaScript console!</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Quicksand:wght@400;500;700&family=Anonymous+Pro:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+		<link rel="stylesheet" href="./style.css">
+		<script defer src='https://unpkg.com/tabbable/dist/index.umd.js'></script>
+		<script defer src='https://cdn.jsdelivr.net/npm/postcss@8.3.6/lib/postcss.min.js'></script>
+		<script defer src='https://cdn.jsdelivr.net/npm/postcss-aspect-ratio-polyfill@2.0.0/index.min.js'></script>
+		<script defer src="./script.js"></script>
+	</head>
+	<body>
+		<header><h1 id="logo">console<span style="color: red; margin-left: 2px;">D</span><span style="color: orange">r</span><span style="color: yellow">a</span><span style="color: green">w</span><span style="color: blue">(</span><span style="color: blueviolet">)</span></h1></header>
+		<div id="console-draw-app" data-tool="draw" style="--console-draw-setting-width: 10; --console-draw-setting-height: 10; --console-draw-setting-color: '#00000000'; --console-draw-setting-color--color: '#000000'; --console-draw-cursor-draw: url('https://dreamthinkbuild.com/console-draw/cursor.php') 0 24, pointer; --console-draw-cursor-fill: var(--console-draw-cursor-draw); --console-draw-cursor-eyedrop: url('https://dreamthinkbuild.com/console-draw/cursor.php') 0 24, pointer; --console-draw-cursor-erase: url('https://dreamthinkbuild.com/console-draw/cursor.php') 0 24, pointer; --console-draw-cursor: var(--console-draw-cursor-draw); --console-draw-drawing-base64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAABdJREFUKFNjZCASMBKpjmFUId6QIjp4AAppAAuXjCs4AAAAAElFTkSuQmCC'; --console-draw-drawing-base64-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAABdJREFUKFNjZCASMBKpjmFUId6QIjp4AAppAAuXjCs4AAAAAElFTkSuQmCC'); --console-draw-drawing-aspect-ratio: 1;">
+			<label for="console-draw-drawing-name">Name your drawing<div class="console-draw-setting"><input id="console-draw-drawing-name" type="text" placeholder="My Drawing"></div></label>
+			<div class="cols-split">
+				<label for="console-draw-setting-width">Drawing width<div class="console-draw-setting"><input id="console-draw-setting-width" type="number" value="10" min="1" max="128"><div class="console-draw-actions"><button class="console-draw-action console-draw-spinner console-draw-spinner-minus"></button><button class="console-draw-action console-draw-spinner console-draw-spinner-plus"></button></div></div></label>
+				<label for="console-draw-setting-height">Drawing height<div class="console-draw-setting"><input id="console-draw-setting-height" type="number" value="10" min="1" max="128"><div class="console-draw-actions"><button class="console-draw-action console-draw-spinner console-draw-spinner-minus"></button><button class="console-draw-action console-draw-spinner console-draw-spinner-plus"></button></div></div></label>
+			</div>
+			<div class="cols-split">
+				<label for="console-draw-setting-color">Selected color<div class="console-draw-setting" data-prefix="#"><input id="console-draw-setting-color-text" type="text" pattern="^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" maxlength="6" required><div class="console-draw-actions"><input id="console-draw-setting-color" type="color" class="console-draw-action"></div></div></label>
+				<label for="console-draw-setting-opacity">Opacity<div class="console-draw-setting" style="--value-char-length: 3"><input id="console-draw-setting-opacity-text" type="number" value="100" min="0" max="100"><div class="console-draw-actions"><div href="#console-draw-setting-opacity-wrapper" class="console-draw-action"></div></div><div id="console-draw-opacity-range-slider"><input id="console-draw-setting-opacity" type="range" value="100" min="0" max="100" step="1"></div></div></label>
+			</div>
+			<div>Recent colors<div id="console-draw-recent-colors"></div></div>
+			<div>Saved colors<div id="console-draw-saved-colors"><button id="console-draw-saved-colors-action" data-content='+' class="button invert"></button></div></div>
+			<div id="console-draw-toolbox"><div id="console-draw-toolbox-title">Toolbox <input type="checkbox" id="console-draw-setting-invert-dark" name="console-draw-setting-invert-dark"><label for="console-draw-setting-invert-dark"><span>Invert<span class="desktop">&nbsp;colors</span>&nbsp;on dark mode</span></div></label>
+				<div id="console-draw-tools">
+					<input id="console-draw-tool-draw" type="radio" name="console-draw-tool" value="draw" checked>
+					<label for="console-draw-tool-draw" class="mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="pen" class="svg-inline--fa fa-pen fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M493.26 56.26l-37.51-37.51C443.25 6.25 426.87 0 410.49 0s-32.76 6.25-45.25 18.74l-74.49 74.49L256 127.98 12.85 371.12.15 485.34C-1.45 499.72 9.88 512 23.95 512c.89 0 1.79-.05 2.69-.15l114.14-12.61L384.02 256l34.74-34.74 74.49-74.49c25-25 25-65.52.01-90.51zM118.75 453.39l-67.58 7.46 7.53-67.69 231.24-231.24 31.02-31.02 60.14 60.14-31.02 31.02-231.33 231.33zm340.56-340.57l-44.28 44.28-60.13-60.14 44.28-44.28c4.08-4.08 8.84-4.69 11.31-4.69s7.24.61 11.31 4.69l37.51 37.51c6.24 6.25 6.24 16.4 0 22.63z"></path></svg><span>Draw</span></label>
+					<input id="console-draw-tool-fill" type="radio" name="console-draw-tool" value="fill">
+					<label for="console-draw-tool-fill" class="mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="fill-drip" class="svg-inline--fa fa-fill-drip fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M512 320s-64 92.65-64 128c0 35.35 28.66 64 64 64s64-28.65 64-64-64-128-64-128zm-9.37-102.94L294.94 9.37A31.94 31.94 0 0 0 272.31 0c-8.19 0-16.38 3.12-22.62 9.37L162.5 96.56 70.62 4.69c-6.25-6.25-16.38-6.25-22.63 0L36.69 16c-6.25 6.25-6.25 16.38 0 22.63l91.88 91.88L28.11 230.95c-37.49 37.48-37.49 98.26 0 135.75L145.3 483.89c18.74 18.74 43.31 28.12 67.87 28.12 24.57 0 49.13-9.37 67.87-28.12l221.57-221.57c12.51-12.51 12.51-32.76.02-45.26zM247.11 449.95C238.05 459.01 226 464 213.18 464s-24.87-4.99-33.93-14.05L65.3 336h295.75L247.11 449.95zM409.06 288H49.34c2-8.67 6.27-16.67 12.71-23.11L162.5 164.44l69.9 69.9c9.37 9.37 24.56 9.37 33.94 0 9.37-9.37 9.37-24.57 0-33.94l-69.9-69.9 75.87-75.87 185.05 185.06-48.3 48.31z"></path></svg><span>Fill</span></label>
+					<input id="console-draw-tool-eyedrop" type="radio" name="console-draw-tool" value="eyedrop">
+					<label for="console-draw-tool-eyedrop" class="mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="eye-dropper" class="svg-inline--fa fa-eye-dropper fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M483.89 28.14l-.02-.02-.03-.03c-37.47-37.47-98.26-37.46-135.72.03l-77.09 77.09-13.1-13.1c-9.44-9.44-24.65-9.31-33.94 0l-63.6 63.6c-9.37 9.37-9.37 24.57 0 33.94l16.98 16.98L50.75 333.25c-12 12-18.75 28.28-18.75 45.26V424L0 480l32 32 56-32h45.49c16.97 0 33.25-6.74 45.25-18.74l126.64-126.62 16.96 16.96c9.44 9.44 24.65 9.31 33.94 0l63.6-63.6c9.37-9.37 9.37-24.57 0-33.94l-13.1-13.1 77.09-77.09c37.5-37.47 37.5-98.25.02-135.73zM144.8 427.32a15.892 15.892 0 0 1-11.31 4.68H80v-53.49c0-4.27 1.66-8.29 4.69-11.31l126.63-126.62 60.12 60.12L144.8 427.32zm305.14-297.38l-77.09 77.09-33.94 33.94 30.07 30.06-29.66 29.66-128-128 29.66-29.65 30.06 30.07L382.08 62.05c9.05-9.06 21.1-14.05 33.91-14.05 12.82 0 24.86 4.98 33.91 14.04l.04.04C459.01 71.14 464 83.19 464 96.01c0 12.81-5 24.86-14.06 33.93z"></path></svg><span>Pick</span></label>
+					<input id="console-draw-tool-erase" type="radio" name="console-draw-tool" value="erase">
+					<label for="console-draw-tool-erase" class="mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="eraser" class="svg-inline--fa fa-eraser fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M497.94 273.94a48 48 0 0 0 0-67.88l-160-160a48 48 0 0 0-67.88 0l-256 256a48 48 0 0 0 0 67.88l96 96A48 48 0 0 0 144 480h356a12 12 0 0 0 12-12v-24a12 12 0 0 0-12-12H339.88l158.06-158.06zM304 80l160 160-103 103-160-160zM144 432l-96-96 119-119 160 160-55 55z"></path></svg><span>Erase</span></label>
+					<input id="console-draw-tool-reset" type="radio" name="console-draw-tool" value="reset">
+					<label for="console-draw-tool-reset" class="mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="undo-alt" class="svg-inline--fa fa-undo-alt fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M28.485 28.485L80.65 80.65C125.525 35.767 187.515 8 255.999 8 392.66 8 504.1 119.525 504 256.185 503.9 393.067 392.905 504 256 504c-63.926 0-122.202-24.187-166.178-63.908-5.113-4.618-5.353-12.561-.482-17.433l19.738-19.738c4.498-4.498 11.753-4.785 16.501-.552C160.213 433.246 205.895 452 256 452c108.321 0 196-87.662 196-196 0-108.321-87.662-196-196-196-54.163 0-103.157 21.923-138.614 57.386l54.128 54.129c7.56 7.56 2.206 20.485-8.485 20.485H20c-6.627 0-12-5.373-12-12V36.971c0-10.691 12.926-16.045 20.485-8.486z"></path></svg><span>Reset</span></label>
+				</div>
+			</div>
+			<div id="console-draw-pixels">
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+				<div class="console-draw-pixel-row">
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+					<button class="console-draw-pixel" draggable="false" tab-index="0"></button>
+				</div>
+			</div>
+			<div id="console-draw-history">
+				<div id="console-draw-history-actions">
+					<input id="console-draw-history-actions--branches" name="console-draw-history-actions--branches" type="checkbox"><label for="console-draw-history-actions--branches" title="Branches" aria-label="Branches" class="console-draw-history-action mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="code-branch" class="svg-inline--fa fa-code-branch fa-w-12" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M384 144c0-44.2-35.8-80-80-80s-80 35.8-80 80c0 36.4 24.3 67.1 57.5 76.8c-0.6 16.1-4.2 28.5-11 36.9 c-15.4 19.2-49.3 22.4-85.2 25.7c-28.2 2.6-57.4 5.4-81.3 16.9v-144c32.5-10.2 56-40.5 56-76.3c0-44.2-35.8-80-80-80S0 35.8 0 80 c0 35.8 23.5 66.1 56 76.3v199.3C23.5 365.9 0 396.2 0 432c0 44.2 35.8 80 80 80s80-35.8 80-80c0-34-21.2-63.1-51.2-74.6 c3.1-5.2 7.8-9.8 14.9-13.4c16.2-8.2 40.4-10.4 66.1-12.8c42.2-3.9 90-8.4 118.2-43.4c14-17.4 21.1-39.8 21.6-67.9 C361.2 209.1 384 179.2 384 144L384 144z"></path></svg></label>
+					<div id="console-draw-history-branches-wrapper"><div id="console-draw-history-branches-inner" class="modal"><h4 id="console-draw-history-branches-title">Branches<button class="modal-close" id="console-draw-branches-close" data-for="console-draw-history-actions--branches" role="button" aria-label="Close">×</button></h4><h5 id="console-draw-history-branches-subtitle">Welcome to the multiverse of your <span class="monospace">consoleDraw()</span> masterpiece<small>Lost an edit somewhere along the strands of time in your undo/redo chain? No worries, we’ve got them all stashed here.</small></h5><div id="console-draw-history-current-branch" class="branch-group"></div><div id="console-draw-history-branches" data-branch-count="0" class="branch-group"></div></div></div>
+					<button id="console-draw-history-actions--undo-all" title="Undo All" aria-label="Undo All" class="console-draw-history-action mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="fast-backward" class="svg-inline--fa fa-fast-backward fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M0 436V76c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v151.9L235.5 71.4C256.1 54.3 288 68.6 288 96v131.9L459.5 71.4C480.1 54.3 512 68.6 512 96v320c0 27.4-31.9 41.7-52.5 24.6L288 285.3V416c0 27.4-31.9 41.7-52.5 24.6L64 285.3V436c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12z"></path></svg></button>
+					<button id="console-draw-history-actions--undo" title="Undo" aria-label="Undo" class="console-draw-history-action mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="step-backward" class="svg-inline--fa fa-step-backward fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M64 468V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12v176.4l195.5-181C352.1 22.3 384 36.6 384 64v384c0 27.4-31.9 41.7-52.5 24.6L136 292.7V468c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12z"></path></svg></button>
+					<button id="console-draw-history-actions--redo" title="Redo" aria-label="Redo" class="console-draw-history-action mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="step-forward" class="svg-inline--fa fa-step-forward fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M384 44v424c0 6.6-5.4 12-12 12h-48c-6.6 0-12-5.4-12-12V291.6l-195.5 181C95.9 489.7 64 475.4 64 448V64c0-27.4 31.9-41.7 52.5-24.6L312 219.3V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12z"></path></svg></button>
+					<button id="console-draw-history-actions--redo-all" title="Redo All" aria-label="Redo All" class="console-draw-history-action mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="fast-forward" class="svg-inline--fa fa-fast-forward fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 76v360c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12V284.1L276.5 440.6c-20.6 17.2-52.5 2.8-52.5-24.6V284.1L52.5 440.6C31.9 457.8 0 443.4 0 416V96c0-27.4 31.9-41.7 52.5-24.6L224 226.8V96c0-27.4 31.9-41.7 52.5-24.6L448 226.8V76c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12z"></path></svg></button>
+				</div>
+			</div>
+			<div id="console-draw-import">Import
+				<div id="console-draw-import-actions">
+					<input id="console-draw-import-actions--samples" type="checkbox"><label for="console-draw-import-actions--samples" class="console-draw-snippet-action invert mobile-text-only"><span>Samples</span><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="caret-up" class="svg-inline--fa fa-caret-up fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M288.662 352H31.338c-17.818 0-26.741-21.543-14.142-34.142l128.662-128.662c7.81-7.81 20.474-7.81 28.284 0l128.662 128.662c12.6 12.599 3.676 34.142-14.142 34.142z"></path></svg></label>
+					<div id="console-draw-import-samples" data-sample-count="0"></div>
+					<button id="console-draw-import-actions--paste" class="console-draw-snippet-action invert mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="paste" class="svg-inline--fa fa-paste fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M433.941 193.941l-51.882-51.882A48 48 0 0 0 348.118 128H320V80c0-26.51-21.49-48-48-48h-61.414C201.582 13.098 182.294 0 160 0s-41.582 13.098-50.586 32H48C21.49 32 0 53.49 0 80v288c0 26.51 21.49 48 48 48h80v48c0 26.51 21.49 48 48 48h224c26.51 0 48-21.49 48-48V227.882a48 48 0 0 0-14.059-33.941zm-84.066-16.184l48.368 48.368a6 6 0 0 1 1.757 4.243V240h-64v-64h9.632a6 6 0 0 1 4.243 1.757zM160 38c9.941 0 18 8.059 18 18s-8.059 18-18 18-18-8.059-18-18 8.059-18 18-18zm-32 138v192H54a6 6 0 0 1-6-6V86a6 6 0 0 1 6-6h55.414c9.004 18.902 28.292 32 50.586 32s41.582-13.098 50.586-32H266a6 6 0 0 1 6 6v42h-96c-26.51 0-48 21.49-48 48zm266 288H182a6 6 0 0 1-6-6V182a6 6 0 0 1 6-6h106v88c0 13.255 10.745 24 24 24h88v170a6 6 0 0 1-6 6z"></path></svg><span>Paste</span></button>
+					<input id="console-draw-import-actions--upload" type="file" accept=".png,.jpg,.gif"><label for="console-draw-import-actions--upload" class="console-draw-snippet-action invert mobile-icon-only"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="images" class="svg-inline--fa fa-images fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M480 416v16c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V176c0-26.51 21.49-48 48-48h16v48H54a6 6 0 0 0-6 6v244a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6v-10h48zm42-336H150a6 6 0 0 0-6 6v244a6 6 0 0 0 6 6h372a6 6 0 0 0 6-6V86a6 6 0 0 0-6-6zm6-48c26.51 0 48 21.49 48 48v256c0 26.51-21.49 48-48 48H144c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h384zM264 144c0 22.091-17.909 40-40 40s-40-17.909-40-40 17.909-40 40-40 40 17.909 40 40zm-72 96l39.515-39.515c4.686-4.686 12.284-4.686 16.971 0L288 240l103.515-103.515c4.686-4.686 12.284-4.686 16.971 0L480 208v80H192v-48z"></path></svg><span>Upload</span></label>
+				</div>
+			</div>
+			<div id="console-draw-snippet">Export
+				<div id="console-draw-snippet-type" data-type="draw">
+					<input type="radio" name="console-draw-snippet-type" id="console-draw-snippet-type-draw" value="draw" checked>
+					<label for="console-draw-snippet-type-draw">consoleDraw()</label>
+					<input type="radio" name="console-draw-snippet-type" id="console-draw-snippet-type-log" value="log">
+					<label for="console-draw-snippet-type-log">console.log()</label>
+				</div>
+				<div id="console-draw-snippet-wrapper">
+					<textarea id="console-draw-snippet-draw"></textarea>
+					<textarea id="console-draw-snippet-log"></textarea>
+				</div>
+				<div id="console-draw-snippet-actions">
+					<button id="console-draw-snippet-actions--copy" class="console-draw-snippet-action"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="clone" class="svg-inline--fa fa-clone fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M464 0H144c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h320c26.51 0 48-21.49 48-48v-48h48c26.51 0 48-21.49 48-48V48c0-26.51-21.49-48-48-48zM362 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h42v224c0 26.51 21.49 48 48 48h224v42a6 6 0 0 1-6 6zm96-96H150a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h308a6 6 0 0 1 6 6v308a6 6 0 0 1-6 6z"></path></svg><span>Copy</span></button>
+					<button id="console-draw-snippet-actions--raw" class="console-draw-snippet-action"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="file-alt" class="svg-inline--fa fa-file-alt fa-w-12" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M288 248v28c0 6.6-5.4 12-12 12H108c-6.6 0-12-5.4-12-12v-28c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm-12 72H108c-6.6 0-12 5.4-12 12v28c0 6.6 5.4 12 12 12h168c6.6 0 12-5.4 12-12v-28c0-6.6-5.4-12-12-12zm108-188.1V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V48C0 21.5 21.5 0 48 0h204.1C264.8 0 277 5.1 286 14.1L369.9 98c9 8.9 14.1 21.2 14.1 33.9zm-128-80V128h76.1L256 51.9zM336 464V176H232c-13.3 0-24-10.7-24-24V48H48v416h288z"></path></svg><span>Raw</span></button>
+					<button id="console-draw-snippet-actions--run" class="console-draw-snippet-action"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" class="svg-inline--fa fa-play fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"></path></svg><span>Run</span></button>
+				</div>
+			</div>
+			<hr>
+			<div class="ta-c"><span class="desktop">Show off your masterpiece 🎨</span><span class="mobile">Show it off 🎨</span></div>
+			<div id="console-draw-share-options">
+				<input id="console-draw-submit" name="console-draw-submit" type="checkbox">
+				<label for="console-draw-submit" role="button"><span>Submit<span class="desktop"> your drawing</span></span><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" class="svg-inline--fa fa-arrow-right fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></path></svg></label>
+				<div id="console-draw-submit-form-wrapper">
+					<div id="console-draw-submit-form-inner" class="modal">
+						<button class="modal-close" id="console-draw-submit-close" data-for="console-draw-submit" role="button" aria-label="Close">×</button>
+						<form id="console-draw-submit-form" autocomplete="true">
+							<div id="console-draw-submit-preview-wrapper">
+								<img id="console-draw-submit-preview">
+							</div>
+							<label for="console-draw-submit-drawing-name">Name your drawing<div class="console-draw-setting"><input id="console-draw-submit-drawing-name" name="console-draw-submit-drawing-name" type="text" placeholder="My Drawing" required></div></label>
+							<label for="console-draw-submit-author-name">Your name<div class="console-draw-setting"><input id="console-draw-submit-author-name" name="console-draw-submit-author-name" type="text" placeholder="Steve Jobs" required></div></label>
+							<label for="console-draw-submit-email"><span data-suffix=" (kept private)" class="suffix-faded">Email address</span><div class="console-draw-setting"><input id="console-draw-submit-email" name="console-draw-submit-email" type="text" placeholder="name@domain.com" required></div></label>
+							<div class="cols-split">
+								<label for="console-draw-submit-socials-website console-draw-setting">Website<div class="console-draw-setting"><input id="console-draw-submit-socials-website" name="console-draw-submit-socials-website" type="text" placeholder="https…"></div></label>
+								<label for="console-draw-submit-socials-codepen console-draw-setting">CodePen<div class="console-draw-setting" data-prefix="@"><input id="console-draw-submit-socials-codepen" name="console-draw-submit-socials-codepen" type="text" placeholder="username" minlength="2" maxlength="50"></div></label>
+							</div>
+							<div class="cols-split">
+								<label for="console-draw-submit-socials-github console-draw-setting">GitHub<div class="console-draw-setting" data-prefix="@"><input id="console-draw-submit-socials-github" name="console-draw-submit-socials-github" type="text" placeholder="username" maxlength="39"></div></label>
+								<label for="console-draw-submit-socials-stackoverflow console-draw-setting">StackOverflow<div class="console-draw-setting"><input id="console-draw-submit-socials-stackoverflow" name="console-draw-submit-socials-stackoverflow" type="text" placeholder="https…"></div></label>
+							</div>
+							<div class="cols-split">
+								<label for="console-draw-submit-socials-linkedin console-draw-setting">LinkedIn<div class="console-draw-setting" data-prefix="@"><input id="console-draw-submit-socials-linkedin" name="console-draw-submit-socials-linkedin" type="text" placeholder="username" minlength="3" maxlength="100"></div></label>
+								<label for="console-draw-submit-socials-twitter console-draw-setting">Twitter<div class="console-draw-setting" data-prefix="@"><input id="console-draw-submit-socials-twitter" name="console-draw-submit-socials-twitter" type="text" placeholder="username" maxlength="15"></div></label>
+							</div>
+							<div id="console-draw-submit-submit-subtitle" class="ta-c">Ready for takeoff? 🚀</div>
+							<input type="hidden" id="console-draw-submit-colors" name="console-draw-submit-colors" value="">
+							<input type="hidden" id="console-draw-submit-image" name="console-draw-submit-image" value="">
+							<button id="console-draw-submit-submit" type="submit"><span>Submit<span class="desktop"> your drawing</span></span><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" class="svg-inline--fa fa-arrow-right fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></path></svg></button>
+						</form>
+					</div>
+				</div>
+				<a id="console-draw-download" class="button invert" download="my-drawing" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAABdJREFUKFNjZCASMBKpjmFUId6QIjp4AAppAAuXjCs4AAAAAElFTkSuQmCC" target="_blank"><span>Download</span><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="cloud-download-alt" class="svg-inline--fa fa-cloud-download-alt fa-w-20" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M543.7 200.1C539.7 142.1 491.4 96 432 96c-7.6 0-15.1.8-22.4 2.3C377.7 58.3 328.1 32 272 32c-84.6 0-155.5 59.7-172.3 139.8C39.9 196.1 0 254.4 0 320c0 88.4 71.6 160 160 160h336c79.5 0 144-64.5 144-144 0-61.8-39.2-115.8-96.3-135.9zM496 432H160c-61.9 0-112-50.1-112-112 0-56.4 41.7-103.1 96-110.9V208c0-70.7 57.3-128 128-128 53.5 0 99.3 32.8 118.4 79.4 11.2-9.6 25.7-15.4 41.6-15.4 35.3 0 64 28.7 64 64 0 11.8-3.2 22.9-8.8 32.4 2.9-.3 5.9-.4 8.8-.4 53 0 96 43 96 96s-43 96-96 96zM387 256h-67v-84c0-6.6-5.4-12-12-12h-40c-6.6 0-12 5.4-12 12v84h-67c-10.7 0-16 12.9-8.5 20.5l99 99c4.7 4.7 12.3 4.7 17 0l99-99c7.6-7.6 2.2-20.5-8.5-20.5z"></path></svg></a>
+			</div>
+		</div>
+		<hr>
+		<footer>
+			<div id="credit-text">Created with <span class="symbol">❤</span> by Brandon McConnell</div>
+			<div id="credit-socials">
+				<a href="https://codepen.io/brandonmcconnell" target="_blank" title="Brandon McConnell on CodePen"><img src="https://assets.codepen.io/1580009/icon-codepen.svg" alt="CodePen icon"></a>
+				<a href="https://github.com/brandonmcconnell" target="_blank" title="Brandon McConnell on GitHub"><img src="https://assets.codepen.io/1580009/icon-github.svg" alt="GitHub icon"></a>
+				<a href="https://stackoverflow.com/users/3824249/brandon-mcconnell" target="_blank" title="Brandon McConnell on StackOverflow"><img src="https://assets.codepen.io/1580009/icon-stackoverflow.svg" alt="StackOverflow icon"></a>
+				<a href="https://linkedin.com/in/brandonmcconnell" target="_blank" title="Brandon McConnell on LinkedIn"><img src="https://assets.codepen.io/1580009/icon-linkedin.svg" alt="LinkedIn icon"></a>
+				<a href="https://twitter.com/branmcconnell" target="_blank" title="Brandon McConnell on Twitter"><img src="https://assets.codepen.io/1580009/icon-twitter.svg" alt="Twitter icon"></a>
+			</div>
+		</footer>
+	</body>
+</html>
