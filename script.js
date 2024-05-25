@@ -289,7 +289,7 @@ const offsetToAngle = (x, y) => {
   const angle = (Math.atan2(x, y) / Math.PI * 180) % 360;
   return angle < 0 ? 360 + angle : angle;
 };
-const setCursorColor = (color = getSelectedColorFull()) => app.style.setProperty('--console-draw-cursor-draw', `url('https://dreamthinkbuild.com/console-draw/cursor.php?color=${encodeURIComponent(color)}') 0 24, pointer`);
+const setCursorColor = (color = getSelectedColorFull()) => app.style.setProperty('--console-draw-cursor-draw', `url('https://consoledraw.dreamthinkbuild.com/cursor.php?color=${encodeURIComponent(color)}') 0 24, pointer`);
 const getColorFromVar = str => str.replace(/\"/g, '').trim();
 const getSelectedColor = () => colorInput.value;
 const getSelectedOpacity = () => opacityInput.value;
@@ -933,7 +933,7 @@ document.addEventListener('submit', e => {
   if (e.target) {
     if (e.target === submitDrawingForm) {
       e.preventDefault();
-      fetch('//dreamthinkbuild.com/console-draw/submit_sample.php', {
+      fetch('//consoledraw.dreamthinkbuild.com/submit_sample.php', {
         method: 'POST',
         cache: 'no-cache',
         body: JSON.stringify(getSubmitDrawingFormData())
@@ -984,7 +984,7 @@ const socialNetworks = [
   }]
 ];
 const refreshSampleLibrary = () => {
-  fetch('https://dreamthinkbuild.com/console-draw/get_samples.php').then(res => res.json()).then(samples => {
+  fetch('https://consoledraw.dreamthinkbuild.com/get_samples.php').then(res => res.json()).then(samples => {
     if (samples.length && samples.length !== Number(sampleLibrary.dataset.sampleCount)) {
       sampleLibrary.dataset.sampleCount = samples.length;
       sampleLibrary.innerHTML = '';
